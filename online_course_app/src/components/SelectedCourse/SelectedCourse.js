@@ -174,75 +174,7 @@ const SelectedCourse = (props) => {
           ))}
         </div>
 
-        {!isLoading ? (
-          <div class="row" style={{ padding: "5px" }}>
-            <Paper class="col-md-6 col-sm-12">
-              <Tabs
-                id="controlled-tab-example"
-                activeKey={key}
-                onSelect={(k) => setKey(k)}
-              >
-                <Tab eventKey="home" title="What You'll learn">
-                  <div class="col-md-6 col-sm-12" style={{ padding: "0px" }}>
-                    <ul style={{ padding: "0px" }}>
-                      <li style={{ padding: "0px" }}>You will learn HTML</li>
-                      <li>You will learn CSS</li>
-                      <li>You will learn how to design web page</li>
-                    </ul>
-                  </div>
-                </Tab>
-                <Tab eventKey="profile" title="Course Content">
-                  <Accordion>
-                    <Card>
-                      <Card.Header style={{ padding: "0px" }}>
-                        <CustomToggle eventKey="0">
-                          Course Introduction
-                        </CustomToggle>
-                      </Card.Header>
-                      <Accordion.Collapse eventKey="0">
-                        <Card.Body>
-                          Welcome to the brand new course where you can learn
-                          about how to build a personal portfolio website from
-                          scratch with only three core technologies HTML, CSS,
-                          and JS. If you want to create your own portfolio which
-                          will help you to represent yourself in the best way
-                          and get hired then this is the right course for you.
-                          If you ask any of the employers or project managers
-                          how to choose the best developers everyone will answer
-                          that the most important thing about the developer is
-                          to represent himself or herself with a good portfolio.
-                        </Card.Body>
-                      </Accordion.Collapse>
-                    </Card>
-                    <Card>
-                      <Card.Header style={{ padding: "0px" }}>
-                        <CustomToggle eventKey="1">
-                          Curriculam review
-                        </CustomToggle>
-                      </Card.Header>
-                      <Accordion.Collapse eventKey="1">
-                        <Card.Body>
-                          Welcome to the brand new course where you can learn
-                          about how to build a personal portfolio website from
-                          scratch with only three core technologies HTML, CSS,
-                          and JS. If you want to create your own portfolio which
-                          will help you to represent yourself in the best way
-                          and get hired then this is the right course for you.
-                          If you ask any of the employers or project managers
-                          how to choose the best developers everyone will answer
-                          that the most important thing about the developer is
-                          to represent himself or herself with a good portfolio.
-                        </Card.Body>
-                      </Accordion.Collapse>
-                    </Card>
-                  </Accordion>
-                </Tab>
-              </Tabs>
-            </Paper>{" "}
-          </div>
-        ) : (
-          <div></div>
-        )}
+        
       </div>
     </>
   );

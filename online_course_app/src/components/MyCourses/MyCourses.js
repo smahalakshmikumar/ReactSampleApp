@@ -9,7 +9,6 @@ const MyCourses = (props) => {
   const [courses, setAllCourses] = useState([]);
   const [wishlistDataSource, setWishDataSource] = useState([]);
   const [isLoading, setLoading] = React.useState(false);
-  const [ResponseData, setResponseData] = React.useState();
 
   useEffect(() => RefreshFunc(), []);
 
@@ -23,157 +22,98 @@ const MyCourses = (props) => {
         .then((response) => response.json())
         .then((responseData) => {
           setLoading(false);
-          
-          setResponseData(responseData);
-        });
-      fetch(
-        "https://reactlearning-4bb45-default-rtdb.firebaseio.com/Courses.json"
-      )
-        .then((response) => response.json())
-        .then((responseData) => {
-          setLoading(false);
+          let filteredArray = responseData.filter(function (item) {
+            return item !== null;
+          });
           const loadedCourse = [];
-          for (const key in responseData) {
+          for (const key in filteredArray) {
             loadedCourse.push({
               id: key,
-              title: responseData[key].title,
-              Description: responseData[key].Description,
+              title: filteredArray[key].title,
+              Description: filteredArray[key].Description,
+              isEnrolled: filteredArray[key].isEnrolled,
+              isWishlisted: filteredArray[key].isWishlisted,
             });
           }
-          setAllCourses(loadedCourse);
-        });
-      fetch(
-        "https://reactlearning-4bb45-default-rtdb.firebaseio.com/WishListCourses.json"
-      )
-        .then((response) => response.json())
-        .then((responseData) => {
-          setLoading(false);
-          const loadedCourse = [];
-
-          for (const key in responseData) {
-            loadedCourse.push({
-              id: key,
-              title: responseData[key].title,
-              Description: responseData[key].Description,
-            });
-          }
-          setWishDataSource(loadedCourse);
+          //filtering enrolled courses
+          let filteredCourses = loadedCourse.filter(function (item) {
+            return item.isEnrolled;
+          });
+          //filtering WishListed courses
+          let filteredWishListCourses = loadedCourse.filter(function (item) {
+            return item.isWishlisted;
+          });
+          console.log(loadedCourse);
+          setAllCourses(filteredCourses);
+          setWishDataSource(filteredWishListCourses);
         });
     }
   };
 
-  const MoveMyCourses = (CourseId) => {
+  const ItemClicked = (CourseId, action) => {
     setLoading(true);
-    //fetch the corresponding id
+    //fetching corresponding wishList
     fetch(
-      `https://reactlearning-4bb45-default-rtdb.firebaseio.com/WishListCourses/${CourseId}.json`,
-      {
-        method: "Get",
-      }
+      `https://reactlearning-4bb45-default-rtdb.firebaseio.com/CoursesList/${CourseId}.json`
     )
       .then((response) => response.json())
       .then((responseData) => {
-        setLoading(false);
-
-        fetch(
-          `https://reactlearning-4bb45-default-rtdb.firebaseio.com/WishListCourses/${CourseId}.json`,
+        //setting selected item wishlist to false upon click & enrolled as true to addto my collections
+        if (action === "moveCourses") {
+          responseData["isWishlisted"] = false;
+          responseData["isEnrolled"] = true;
+        } else if (action === "wishClicked") {
           {
-            method: "Delete",
+            responseData["isWishlisted"] = true;
+            responseData["isEnrolled"] = false;
           }
-        ).then((response) => {
-          fetch(
-            "https://reactlearning-4bb45-default-rtdb.firebaseio.com/Courses.json",
-            {
-              method: "POST",
-              body: JSON.stringify(responseData),
-              headers: { "Content-Type": "application/json" },
-            }
-          )
-           setLoading(false);
-          setWishDataSource((prevCourses) =>
-            prevCourses.filter((course) => course.id !== CourseId)
-          );
-        });
+        }
+
+        setLoading(false);
+        fetch(
+          `https://reactlearning-4bb45-default-rtdb.firebaseio.com/CoursesList/${CourseId}.json`,
+          {
+            method: "PUT",
+            body: JSON.stringify(responseData),
+            headers: { "Content-Type": "application/json" },
+          }
+        )
+          .then((response) => response.json())
+          .then((responseData) => {
+            setLoading(false);
+            setWishDataSource((prevCourses) =>
+              prevCourses.filter((course) => course.id !== CourseId)
+            );
+            setAllCourses((prevCourses) =>
+              prevCourses.filter((course) => course.id !== CourseId)
+            );
+          });
       });
   };
 
-  //wishlist click func
-  const WishListClicked = (CourseId) => {
-    setLoading(true);
-    //fetch the corresponding id
-    fetch(
-      `https://reactlearning-4bb45-default-rtdb.firebaseio.com/Courses/${CourseId}.json`,
-      {
-        method: "Get",
-      }
-    )
-      .then((response) => response.json())
-      .then((responseData) => {
-        setLoading(false);
-        fetch(
-          `https://reactlearning-4bb45-default-rtdb.firebaseio.com/Courses/${CourseId}.json`,
-          {
-            method: "Delete",
-          }
-        ).then((response) => {
-          fetch(
-            "https://reactlearning-4bb45-default-rtdb.firebaseio.com/WishListCourses.json",
-            {
-              method: "POST",
-              body: JSON.stringify(responseData),
-              headers: { "Content-Type": "application/json" },
-            }
-          )
-          setLoading(false);
-          setAllCourses((prevCourses) =>
-            prevCourses.filter((course) => course.id !== CourseId)
-          );
-        });
-      });
-  };
+  
 
-  //Delete from my collections
+  //Delete clicked
   const DeleteClicked = (CourseId) => {
     setLoading(true);
-    // ResponseData["isEnrolled"]=false;
-    // fetch(
-    //   `https://reactlearning-4bb45-default-rtdb.firebaseio.com/CoursesList/${CourseId}.json`,
-    //   {
-    //     method: "PUT",
-    //     body: JSON.stringify(ResponseData),
-    //     headers: { "Content-Type": "application/json" },
-    //   }
-    // ).then((response)=>{
-      fetch(
-        `https://reactlearning-4bb45-default-rtdb.firebaseio.com/Courses/${CourseId}.json`,
-        {
-          method: "Delete",
-        }
-      ).then((response) => {
-        setLoading(false);
-        setAllCourses((prevCourses) =>
-          prevCourses.filter((course) => course.id !== CourseId)
-        );
-      });
-    //})
-    
-  };
-
-  //delete from wishlist
-  const DeleteWishClicked = (CourseId) => {
-    setLoading(true);
     fetch(
-      `https://reactlearning-4bb45-default-rtdb.firebaseio.com/WishListCourses/${CourseId}.json`,
+      `https://reactlearning-4bb45-default-rtdb.firebaseio.com/CoursesList/${CourseId}.json`,
       {
         method: "Delete",
       }
     ).then((response) => {
       setLoading(false);
+      setAllCourses((prevCourses) =>
+        prevCourses.filter((course) => course.id !== CourseId)
+      );
       setWishDataSource((prevCourses) =>
         prevCourses.filter((course) => course.id !== CourseId)
       );
     });
+    //})
   };
+
+  
 
   return (
     <>
@@ -216,7 +156,7 @@ const MyCourses = (props) => {
                     <button
                       type="button"
                       class="btn btn-info"
-                      onClick={() => WishListClicked(data.id)}
+                      onClick={() => ItemClicked(data.id, "wishClicked")}
                     >
                       Add to Wishlist
                     </button>
@@ -248,14 +188,14 @@ const MyCourses = (props) => {
                       type="button"
                       class="btn btn-danger"
                       style={{ margin: "20px" }}
-                      onClick={() => DeleteWishClicked(data.id)}
+                      onClick={() => DeleteClicked(data.id)}
                     >
                       Delete
                     </button>
                     <button
                       type="button"
                       class="btn btn-info"
-                      onClick={() => MoveMyCourses(data.id)}
+                      onClick={() => ItemClicked(data.id, "moveCourses")}
                     >
                       Move to My courses
                     </button>
